@@ -8,8 +8,8 @@ import {createStackNavigator} from 'react-navigation-stack';
 import styles from './styles';
 import Login from '../login';
 
-const launchScreenBg = require('../../assets/launchscreen-bg.png');
-const launchScreenLogo = require('../../assets/logo-kitchen-sink.png');
+const launchScreenBg = require('../../../assets/launchscreen-bg.png');
+const launchScreenLogo = require('../../../assets/logo-kitchen-sink.png');
 
 class Home extends Component {
   render() {

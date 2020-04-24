@@ -6,4 +6,12 @@ export default {
   form: {
     paddingRight: 15,
   },
+  title: {
+    fontSize: 30,
+    marginTop: 30,
+    textAlign: 'center',
+  },
+  footerText: {
+    textAlign: 'center',
+  },
 };

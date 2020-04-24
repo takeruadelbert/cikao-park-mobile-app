@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {Linking} from 'react-native';
 import {
   Button,
   Container,
@@ -9,8 +10,12 @@ import {
   Text,
   View,
   Toast,
+  Footer,
+  FooterTab,
+  Content,
 } from 'native-base';
 import styles from './styles';
+import Constant from '../../constant';
 
 class Login extends Component {
   constructor(props) {
@@ -67,6 +72,7 @@ class Login extends Component {
     return (
       <Container style={styles.container}>
         <View>
+          <Text style={styles.title}>Cikao Park</Text>
           <Form style={styles.form}>
             <Item floatingLabel>
               <Label>Username</Label>
@@ -86,6 +92,21 @@ class Login extends Component {
             <Text>Sign In</Text>
           </Button>
         </View>
+
+        <Content padder />
+
+        <Footer>
+          <FooterTab>
+            <Button>
+              <Text
+                style={styles.footerText}
+                onPress={() => Linking.openURL(Constant.developerURL)}>
+                Copyright © {Constant.getCurrentYear()} Surya Teknologi Nasional{' '}
+                {'\n'} Developed & Maintenance by {Constant.developer}
+              </Text>
+            </Button>
+          </FooterTab>
+        </Footer>
       </Container>
     );
   }

@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import Home from './src/home';
+import Home from './src/screens/home';
 
 const App = () => {
   return <Home />;
