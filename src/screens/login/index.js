@@ -14,11 +14,13 @@ import {
   Card,
   CardItem,
   Body,
-  Image,
 } from 'native-base';
 import styles from './styles';
+
 import Constant from '../../constant';
 import TakeruHelper from '../../takeruHelper';
+import RestApi from '../../rest-api/restApi';
+import Endpoint from '../../rest-api/endpoint';
 
 const logo = require('../../../assets/cikaopark.png');
 
@@ -30,6 +32,7 @@ class Login extends Component {
       username: '',
       password: '',
     };
+    this.restApi = new RestApi();
   }
 
   handleUsername = (text) => {
@@ -51,11 +54,25 @@ class Login extends Component {
       return;
     }
 
-    TakeruHelper.showToast(
-      'username : ' + username + ' password : ' + password,
-      'success',
-    );
+    this.openApi(username, password).then((response) => {
+      // const result = Object.keys(response).map((key) => ({
+      //   [key]: response[key],
+      // }));
+      console.log(response);
+    });
   };
+
+  async openApi(username, password) {
+    let payload = {
+      username: username,
+      password: password,
+    };
+    console.log('payload = ' + JSON.stringify(payload));
+    let url = Constant.SERVER_HOST + Endpoint.API_LOGIN;
+    let response;
+    response = await this.restApi.post(url, payload);
+    return response;
+  }
 
   render() {
     return (
@@ -96,9 +113,9 @@ class Login extends Component {
             <Button>
               <Text
                 style={styles.footerText}
-                onPress={() => Linking.openURL(Constant.developerURL)}>
+                onPress={() => Linking.openURL(Constant.DEVELOPER_URL)}>
                 Copyright © {Constant.getCurrentYear()} Surya Teknologi Nasional{' '}
-                {'\n'} Developed & Maintenance by {Constant.developer}
+                {'\n'} Developed & Maintenance by {Constant.DEVELOPER}
               </Text>
             </Button>
           </FooterTab>
