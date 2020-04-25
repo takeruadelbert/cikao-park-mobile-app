@@ -33,6 +33,7 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.restApi = new RestApi();
+    this.autoLogin();
     this.session = new Session();
     this.state = {
       showToast: false,
@@ -133,6 +134,26 @@ class Login extends Component {
     this.session
       .persistMultiData(data)
       .then((result) => console.log('persist = ' + result));
+  };
+
+  openApiCheckTokenValidity = async () => {
+    return await this.restApi.get(Endpoint.API_CHECK_TOKEN_VALIDITY);
+  };
+
+  autoLogin = () => {
+    this.openApiCheckTokenValidity().then((response) => {
+      if (response.code === 200) {
+        ToastComponent.showToast(
+          'Login Success',
+          ToastComponent.TOAST_TYPE_SUCCESS,
+        );
+      } else {
+        ToastComponent.showToast(
+          response.data.message,
+          ToastComponent.TOAST_TYPE_WARNING,
+        );
+      }
+    });
   };
 
   render() {
