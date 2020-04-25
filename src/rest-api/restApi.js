@@ -1,3 +1,7 @@
+import Endpoint from './endpoint';
+import Constant from '../constant';
+import Session from '../component/session';
+
 interface IRestApi {
   get: (string) => Object;
   post: (string, string) => Object;
@@ -7,24 +11,27 @@ interface IRestApi {
 class RestApi implements IRestApi {
   static HTTP_METHOD_GET = 'GET';
   static HTTP_METHOD_POST = 'POST';
-  static HTTP_HEADER = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  };
 
   constructor() {
     this.code = '';
     this.hasAnyContent = false;
     this.data = {};
+    this.session = new Session();
+    this.httpHeader = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: '',
+    };
   }
 
   async get(url) {
-    return fetch(url, {
+    this.setDataTokenBearer();
+    return fetch(Constant.SERVER_HOST + url, {
       method: RestApi.HTTP_METHOD_GET,
-      headers: RestApi.HTTP_HEADER,
+      headers: this.httpHeader,
     })
       .then((response) => {
-        return this.buildDataResponse(response);
+        return this.buildDataResponse(url, response);
       })
       .then((responseJson) => {
         return this.buildDataResponseJson(responseJson);
@@ -39,13 +46,14 @@ class RestApi implements IRestApi {
   }
 
   async post(url, payload) {
-    return fetch(url, {
+    this.setDataTokenBearer();
+    return fetch(Constant.SERVER_HOST + url, {
       method: RestApi.HTTP_METHOD_POST,
-      headers: RestApi.HTTP_HEADER,
+      headers: this.httpHeader,
       body: JSON.stringify(payload),
     })
       .then((response) => {
-        return this.buildDataResponse(response);
+        return this.buildDataResponse(url, response);
       })
       .then((responseJson) => {
         return this.buildDataResponseJson(responseJson);
@@ -59,9 +67,12 @@ class RestApi implements IRestApi {
       });
   }
 
-  buildDataResponse = (response) => {
+  buildDataResponse = (url, response) => {
     console.log('response = ' + JSON.stringify(response));
     this.code = response.status;
+    if (this.code === 200 && url === Endpoint.API_LOGIN) {
+      this.persistTokenBearer(response);
+    }
 
     let contentType = response.headers.get('Content-Type');
     this.hasAnyContent =
@@ -84,6 +95,26 @@ class RestApi implements IRestApi {
       code: this.code,
       data: this.data,
     };
+  };
+
+  persistTokenBearer = (response) => {
+    let tokenBearer = response.headers.get('authorization');
+    this.session.persistSingleData('api-token', tokenBearer).then((result) => {
+      if (result) {
+        console.log('Persist Token Bearer Into Session Success.');
+      }
+    });
+  };
+
+  setDataTokenBearer = () => {
+    this.session.fetchSingleData('api-token').then((token) => {
+      if (token !== null) {
+        this.httpHeader.Authorization = token;
+      } else {
+        this.httpHeader.Authorization = '';
+      }
+      console.log('header = ' + JSON.stringify(this.httpHeader));
+    });
   };
 }
 

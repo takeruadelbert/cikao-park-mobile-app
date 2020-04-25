@@ -86,18 +86,23 @@ class Login extends Component {
     this.openApiLogin(username, password).then((response) => {
       if (response.code === 200) {
         this.persistDataLoginIntoSession(username, password);
-        let responseFetchDataLogin = this.openApiFetchDataLogin();
-        if (responseFetchDataLogin.code === 200) {
-          ToastComponent.showToast(
-            'Login Success',
-            ToastComponent.TOAST_TYPE_SUCCESS,
+        this.openApiFetchDataLogin().then((responseFetchDataLogin) => {
+          console.log(
+            'response fetch data login = ' +
+              JSON.stringify(responseFetchDataLogin),
           );
-        } else {
-          ToastComponent.showToast(
-            'an Error occurred when fetching data user.',
-            ToastComponent.TOAST_TYPE_DANGER,
-          );
-        }
+          if (responseFetchDataLogin.code === 200) {
+            ToastComponent.showToast(
+              'Login Success',
+              ToastComponent.TOAST_TYPE_SUCCESS,
+            );
+          } else {
+            ToastComponent.showToast(
+              'an Error occurred when fetching data user.',
+              ToastComponent.TOAST_TYPE_DANGER,
+            );
+          }
+        });
       } else {
         ToastComponent.showToast(
           response.data.message,
@@ -113,13 +118,11 @@ class Login extends Component {
       password: password,
     };
     console.log('payload = ' + JSON.stringify(payload));
-    let url = Constant.SERVER_HOST + Endpoint.API_LOGIN;
-    return await this.restApi.post(url, payload);
+    return await this.restApi.post(Endpoint.API_LOGIN, payload);
   }
 
   async openApiFetchDataLogin() {
-    let url = Constant.SERVER_HOST + Endpoint.API_FETCH_DATA_LOGIN;
-    return await this.restApi.get(url);
+    return await this.restApi.get(Endpoint.API_FETCH_DATA_LOGIN);
   }
 
   persistDataLoginIntoSession = (username, password) => {
