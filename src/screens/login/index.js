@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
-import {Linking, ImageBackground} from 'react-native';
+import {ImageBackground, Linking} from 'react-native';
 import {
+  Body,
   Button,
+  Card,
+  CardItem,
   Container,
   Content,
   Footer,
@@ -11,14 +14,11 @@ import {
   Label,
   Text,
   View,
-  Card,
-  CardItem,
-  Body,
 } from 'native-base';
 import styles from './styles';
 
 import Constant from '../../constant';
-import TakeruHelper from '../../takeruHelper';
+import ToastComponent from '../../component/toastComponent';
 import RestApi from '../../rest-api/restApi';
 import Endpoint from '../../rest-api/endpoint';
 
@@ -45,33 +45,57 @@ class Login extends Component {
 
   signIn = (username, password) => {
     if (username === '') {
-      TakeruHelper.showToast('Username must be filled.', 'warning');
+      ToastComponent.showToast(
+        'Username must be filled.',
+        ToastComponent.TOAST_TYPE_WARNING,
+      );
       return;
     }
 
     if (password === '') {
-      TakeruHelper.showToast('Password must be filled.', 'warning');
+      ToastComponent.showToast(
+        'Password must be filled.',
+        ToastComponent.TOAST_TYPE_WARNING,
+      );
       return;
     }
 
-    this.openApi(username, password).then((response) => {
-      // const result = Object.keys(response).map((key) => ({
-      //   [key]: response[key],
-      // }));
-      console.log(response);
+    this.openApiLogin(username, password).then((response) => {
+      if (response['code'] === 200) {
+        let responseFetchDataLogin = this.openApiFetchDataLogin();
+        if (responseFetchDataLogin['code'] === 200) {
+          ToastComponent.showToast(
+            'Login Success',
+            ToastComponent.TOAST_TYPE_SUCCESS,
+          );
+        } else {
+          ToastComponent.showToast(
+            'an Error occurred when fetching data user.',
+            ToastComponent.TOAST_TYPE_DANGER,
+          );
+        }
+      } else {
+        ToastComponent.showToast(
+          response['data']['message'],
+          ToastComponent.TOAST_TYPE_WARNING,
+        );
+      }
     });
   };
 
-  async openApi(username, password) {
+  async openApiLogin(username, password) {
     let payload = {
       username: username,
       password: password,
     };
     console.log('payload = ' + JSON.stringify(payload));
     let url = Constant.SERVER_HOST + Endpoint.API_LOGIN;
-    let response;
-    response = await this.restApi.post(url, payload);
-    return response;
+    return await this.restApi.post(url, payload);
+  }
+
+  async openApiFetchDataLogin() {
+    let url = Constant.SERVER_HOST + Endpoint.API_FETCH_DATA_LOGIN;
+    return await this.restApi.get(url);
   }
 
   render() {
