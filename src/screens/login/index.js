@@ -21,19 +21,42 @@ import Constant from '../../constant';
 import ToastComponent from '../../component/toastComponent';
 import RestApi from '../../rest-api/restApi';
 import Endpoint from '../../rest-api/endpoint';
+import Session from '../../component/session';
 
 const logo = require('../../../assets/cikaopark.png');
 
 class Login extends Component {
+  static SESSION_USERNAME = 'username';
+  static SESSION_PASSWORD = 'password';
+  static SESSION_API_TOKEN = 'api-token';
+
   constructor(props) {
     super(props);
+    this.restApi = new RestApi();
+    this.session = new Session();
     this.state = {
       showToast: false,
       username: '',
       password: '',
     };
-    this.restApi = new RestApi();
+    this.initDataSession();
   }
+
+  initDataSession = () => {
+    let keys = ['username', 'password'];
+    this.session.fetchMultiData(keys).then((data) => {
+      if (data !== null) {
+        let dataUsername = data[0][1];
+        let dataPassword = data[1][1];
+        if (dataUsername !== null) {
+          this.setState({username: dataUsername});
+        }
+        if (dataPassword !== null) {
+          this.setState({password: dataPassword});
+        }
+      }
+    });
+  };
 
   handleUsername = (text) => {
     this.setState({username: text});
@@ -61,9 +84,10 @@ class Login extends Component {
     }
 
     this.openApiLogin(username, password).then((response) => {
-      if (response['code'] === 200) {
+      if (response.code === 200) {
+        this.persistDataLoginIntoSession(username, password);
         let responseFetchDataLogin = this.openApiFetchDataLogin();
-        if (responseFetchDataLogin['code'] === 200) {
+        if (responseFetchDataLogin.code === 200) {
           ToastComponent.showToast(
             'Login Success',
             ToastComponent.TOAST_TYPE_SUCCESS,
@@ -76,7 +100,7 @@ class Login extends Component {
         }
       } else {
         ToastComponent.showToast(
-          response['data']['message'],
+          response.data.message,
           ToastComponent.TOAST_TYPE_WARNING,
         );
       }
@@ -98,6 +122,16 @@ class Login extends Component {
     return await this.restApi.get(url);
   }
 
+  persistDataLoginIntoSession = (username, password) => {
+    let data = [
+      ['username', username],
+      ['password', password],
+    ];
+    this.session
+      .persistMultiData(data)
+      .then((result) => console.log('persist = ' + result));
+  };
+
   render() {
     return (
       <Container style={styles.container}>
@@ -111,11 +145,18 @@ class Login extends Component {
               <Body style={styles.body}>
                 <Item floatingLabel style={styles.floatingLabel}>
                   <Label>Username</Label>
-                  <Input onChangeText={this.handleUsername} />
+                  <Input
+                    onChangeText={this.handleUsername}
+                    value={this.state.username}
+                  />
                 </Item>
                 <Item floatingLabel style={styles.floatingLabel}>
                   <Label>Password</Label>
-                  <Input secureTextEntry onChangeText={this.handlePassword} />
+                  <Input
+                    secureTextEntry
+                    onChangeText={this.handlePassword}
+                    value={this.state.password}
+                  />
                 </Item>
                 <Button
                   block

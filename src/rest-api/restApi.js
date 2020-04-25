@@ -1,8 +1,6 @@
 interface IRestApi {
   get: (string) => Object;
-
   post: (string, string) => Object;
-
   put: (string, string) => Object;
 }
 
