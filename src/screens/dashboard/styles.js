@@ -2,7 +2,10 @@ export default {
   container: {
     backgroundColor: '#FFF',
   },
-  mb10: {
-    marginBottom: 10,
+  profilePicture: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
   },
 };

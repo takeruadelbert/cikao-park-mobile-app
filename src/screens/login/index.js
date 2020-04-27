@@ -28,16 +28,11 @@ import Session from '../../component/session';
 const logo = require('../../../assets/cikaopark.png');
 
 class Login extends Component {
-  static SESSION_USERNAME = 'username';
-  static SESSION_PASSWORD = 'password';
-  static SESSION_API_TOKEN = 'api-token';
-
   constructor(props) {
     super(props);
     this.restApi = new RestApi();
     this.session = new Session();
     this.state = {
-      showToast: false,
       username: '',
       password: '',
       loading: false,
@@ -104,6 +99,7 @@ class Login extends Component {
               responseFetchDataLogin.data.profilePicture.token;
             let userFullName = responseFetchDataLogin.data.biodata.fullname;
             this.persistDataLoginUser(profilePictureToken, userFullName);
+            this.resetState();
             this.toDashboard();
           } else {
             ToastComponent.showToast(
@@ -163,7 +159,24 @@ class Login extends Component {
     this.toggleLoading(true);
     this.openApiCheckTokenValidity().then((response) => {
       if (response.code === 200) {
-        this.toDashboard();
+        let keys = ['password', 'tokenProfilePicture', 'fullName'];
+        this.session.fetchMultiData(keys).then((data) => {
+          if (data !== null) {
+            let dataPassword = data[0][1];
+            let dataTokenProfilePicture = data[1][1];
+            let dataFullName = data[2][1];
+            if (
+              dataPassword !== null &&
+              dataTokenProfilePicture !== null &&
+              dataFullName !== null
+            ) {
+              this.resetState();
+              this.toDashboard();
+            } else {
+              console.log('unable to auto login.');
+            }
+          }
+        });
       } else {
         ToastComponent.showToast(
           response.data.message,
@@ -180,6 +193,14 @@ class Login extends Component {
 
   toDashboard = () => {
     this.props.navigation.navigate('Dashboard');
+  };
+
+  resetState = () => {
+    this.setState({
+      username: '',
+      password: '',
+      loading: false,
+    });
   };
 
   render() {
