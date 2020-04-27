@@ -1,12 +1,13 @@
 import {Root} from 'native-base';
 import React, {Component} from 'react';
 import {ImageBackground, View, StatusBar} from 'react-native';
-import {Container, Button, H3, Text} from 'native-base';
+import {Container, Button, Text} from 'native-base';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 
 import styles from './styles';
 import Login from '../login';
+import Dashboard from '../dashboard';
 
 const launchScreenBg = require('../../../assets/launchscreen-bg.png');
 const launchScreenLogo = require('../../../assets/logo-kitchen-sink.png');
@@ -40,6 +41,9 @@ const AppNavigator = createStackNavigator(
     },
     SignIn: {
       screen: Login,
+    },
+    Dashboard: {
+      screen: Dashboard,
     },
   },
   {

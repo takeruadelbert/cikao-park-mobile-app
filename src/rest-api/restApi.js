@@ -25,10 +25,7 @@ class RestApi implements IRestApi {
   }
 
   async get(url) {
-    if (url === Endpoint.API_CHECK_TOKEN_VALIDITY) {
-      await this.setupHttpHeader();
-      console.log('Sent HTTP Header = ' + JSON.stringify(this.httpHeader));
-    }
+    await this.setupHttpHeader();
     return fetch(Constant.SERVER_HOST + url, {
       method: RestApi.HTTP_METHOD_GET,
       headers: this.httpHeader,
@@ -49,6 +46,9 @@ class RestApi implements IRestApi {
   }
 
   async post(url, payload) {
+    if (url !== Endpoint.API_LOGIN) {
+      await this.setupHttpHeader();
+    }
     return fetch(Constant.SERVER_HOST + url, {
       method: RestApi.HTTP_METHOD_POST,
       headers: this.httpHeader,

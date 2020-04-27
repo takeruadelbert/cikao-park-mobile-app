@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ImageBackground, Linking, TouchableHighlight} from 'react-native';
+import {ImageBackground, Linking} from 'react-native';
 import {
   Body,
   Button,
@@ -12,9 +12,9 @@ import {
   Input,
   Item,
   Label,
+  Spinner,
   Text,
   View,
-  Spinner,
 } from 'native-base';
 import Modal from 'react-native-modal';
 import styles from './styles';
@@ -100,10 +100,11 @@ class Login extends Component {
               JSON.stringify(responseFetchDataLogin),
           );
           if (responseFetchDataLogin.code === 200) {
-            ToastComponent.showToast(
-              'Login Success',
-              ToastComponent.TOAST_TYPE_SUCCESS,
-            );
+            let profilePictureToken =
+              responseFetchDataLogin.data.profilePicture.token;
+            let userFullName = responseFetchDataLogin.data.biodata.fullname;
+            this.persistDataLoginUser(profilePictureToken, userFullName);
+            this.toDashboard();
           } else {
             ToastComponent.showToast(
               'an Error occurred when fetching data user.',
@@ -141,21 +142,28 @@ class Login extends Component {
     ];
     this.session
       .persistMultiData(data)
-      .then((result) => console.log('persist = ' + result));
+      .then((result) => console.log('persist data login = ' + result));
   };
 
   openApiCheckTokenValidity = async () => {
     return await this.restApi.get(Endpoint.API_CHECK_TOKEN_VALIDITY);
   };
 
+  persistDataLoginUser = (tokenProfilePicture, fullName) => {
+    let data = [
+      ['tokenProfilePicture', tokenProfilePicture],
+      ['fullName', fullName],
+    ];
+    this.session
+      .persistMultiData(data)
+      .then((result) => console.log('persist data login user = ' + result));
+  };
+
   autoLogin = () => {
     this.toggleLoading(true);
     this.openApiCheckTokenValidity().then((response) => {
       if (response.code === 200) {
-        ToastComponent.showToast(
-          'Login Success',
-          ToastComponent.TOAST_TYPE_SUCCESS,
-        );
+        this.toDashboard();
       } else {
         ToastComponent.showToast(
           response.data.message,
@@ -169,6 +177,10 @@ class Login extends Component {
   componentDidMount(): void {
     this.autoLogin();
   }
+
+  toDashboard = () => {
+    this.props.navigation.navigate('Dashboard');
+  };
 
   render() {
     return (
