@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ImageBackground, Linking} from 'react-native';
+import {ImageBackground, Linking, TouchableHighlight} from 'react-native';
 import {
   Body,
   Button,
@@ -14,7 +14,9 @@ import {
   Label,
   Text,
   View,
+  Spinner,
 } from 'native-base';
+import Modal from 'react-native-modal';
 import styles from './styles';
 
 import Constant from '../../constant';
@@ -33,15 +35,19 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.restApi = new RestApi();
-    this.autoLogin();
     this.session = new Session();
     this.state = {
       showToast: false,
       username: '',
       password: '',
+      loading: false,
     };
     this.initDataSession();
   }
+
+  toggleLoading = (visible) => {
+    this.setState({loading: visible});
+  };
 
   initDataSession = () => {
     let keys = ['username', 'password'];
@@ -85,6 +91,7 @@ class Login extends Component {
     }
 
     this.openApiLogin(username, password).then((response) => {
+      this.toggleLoading(true);
       if (response.code === 200) {
         this.persistDataLoginIntoSession(username, password);
         this.openApiFetchDataLogin().then((responseFetchDataLogin) => {
@@ -110,6 +117,7 @@ class Login extends Component {
           ToastComponent.TOAST_TYPE_WARNING,
         );
       }
+      this.toggleLoading(false);
     });
   };
 
@@ -141,6 +149,7 @@ class Login extends Component {
   };
 
   autoLogin = () => {
+    this.toggleLoading(true);
     this.openApiCheckTokenValidity().then((response) => {
       if (response.code === 200) {
         ToastComponent.showToast(
@@ -154,11 +163,22 @@ class Login extends Component {
         );
       }
     });
+    this.toggleLoading(false);
   };
+
+  componentDidMount(): void {
+    this.autoLogin();
+  }
 
   render() {
     return (
       <Container style={styles.container}>
+        <Modal isVisible={this.state.loading}>
+          <View style={styles.spinner}>
+            <Spinner color="red" />
+          </View>
+        </Modal>
+
         <View style={styles.imageView}>
           <ImageBackground source={logo} style={styles.logoContainer} />
         </View>

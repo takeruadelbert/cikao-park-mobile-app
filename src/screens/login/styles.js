@@ -5,6 +5,7 @@ export default {
   },
   body: {
     paddingRight: 15,
+    paddingLeft: 15,
   },
   title: {
     fontSize: 30,
@@ -36,5 +37,8 @@ export default {
     justifyContent: 'center',
     alignItems: 'center',
     alignContent: 'center',
+  },
+  spinner: {
+    justifyContent: 'center',
   },
 };
