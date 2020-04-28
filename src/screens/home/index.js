@@ -8,6 +8,7 @@ import {createStackNavigator} from 'react-navigation-stack';
 import styles from './styles';
 import Login from '../login';
 import Dashboard from '../dashboard';
+import ScanQRCode from '../scanQRCode';
 
 const launchScreenBg = require('../../../assets/launchscreen-bg.png');
 const launchScreenLogo = require('../../../assets/logo-kitchen-sink.png');
@@ -44,6 +45,9 @@ const AppNavigator = createStackNavigator(
     },
     Dashboard: {
       screen: Dashboard,
+    },
+    ScanQRCode: {
+      screen: ScanQRCode,
     },
   },
   {

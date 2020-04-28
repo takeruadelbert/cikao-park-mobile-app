@@ -101,7 +101,9 @@ class Dashboard extends Component {
               <Icon active={this.state.tab1} name="grid" />
               <Text>Dashboard</Text>
             </Button>
-            <Button active={this.state.tab2} onPress={() => this.toggleTab2()}>
+            <Button
+              active={this.state.tab2}
+              onPress={() => this.props.navigation.navigate('ScanQRCode')}>
               <Icon active={this.state.tab2} name="barcode" />
               <Text>Redeem Item</Text>
             </Button>
