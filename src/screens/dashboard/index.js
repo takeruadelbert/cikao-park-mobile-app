@@ -73,19 +73,25 @@ class Dashboard extends Component {
 
   componentDidMount(): void {
     this.fetchDataUser();
-    BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressed);
+  }
+
+  componentWillMount() {
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      this.handleBackButtonClick,
+    );
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener(
       'hardwareBackPress',
-      this.onBackButtonPressed,
+      this.handleBackButtonClick,
     );
   }
 
-  onBackButtonPressed() {
+  handleBackButtonClick = () => {
     return true;
-  }
+  };
 
   render() {
     return (
