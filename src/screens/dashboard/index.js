@@ -11,7 +11,10 @@ import {
   Icon,
   Footer,
   FooterTab,
+  Card,
+  CardItem,
 } from 'native-base';
+import Modal from 'react-native-modal';
 import styles from './styles';
 import Session from '../../component/session';
 import Constant from '../../constant';
@@ -25,6 +28,7 @@ class Dashboard extends Component {
     this.state = {
       tokenPP: '',
       userFullName: '',
+      modalLogout: false,
       tab1: true,
       tab2: false,
       tab3: false,
@@ -51,13 +55,6 @@ class Dashboard extends Component {
       tab3: false,
     });
   }
-  toggleTab2() {
-    this.setState({
-      tab1: false,
-      tab2: true,
-      tab3: false,
-    });
-  }
 
   logout = () => {
     let keys = ['password', 'tokenProfilePicture', 'fullName'];
@@ -72,9 +69,33 @@ class Dashboard extends Component {
     });
   };
 
+  toggleModalLogout = (visible) => {
+    this.setState({modalLogout: visible});
+  };
+
   render() {
     return (
       <Container style={styles.container}>
+        <Modal isVisible={this.state.modalLogout}>
+          <Card style={styles.mb}>
+            <CardItem header bordered first>
+              <Text>Logout Confirmation</Text>
+            </CardItem>
+            <CardItem>
+              <Body>
+                <Text>Are you sure you want to logout?</Text>
+              </Body>
+            </CardItem>
+            <CardItem footer bordered last style={styles.modalCard}>
+              <Text onPress={() => this.logout()}>Yes</Text>
+              <Text
+                style={styles.no}
+                onPress={() => this.toggleModalLogout(false)}>
+                No
+              </Text>
+            </CardItem>
+          </Card>
+        </Modal>
         <Header noLeft>
           <Body>
             <Title>Dashboard</Title>
@@ -107,7 +128,9 @@ class Dashboard extends Component {
               <Icon active={this.state.tab2} name="barcode" />
               <Text>Redeem Item</Text>
             </Button>
-            <Button active={this.state.tab3} onPress={() => this.logout()}>
+            <Button
+              active={this.state.tab3}
+              onPress={() => this.toggleModalLogout(true)}>
               <Icon active={this.state.tab3} name="shuffle" />
               <Text>Logout</Text>
             </Button>
