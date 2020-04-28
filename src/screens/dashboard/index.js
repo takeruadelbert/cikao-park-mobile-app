@@ -15,6 +15,8 @@ import {
   CardItem,
 } from 'native-base';
 import Modal from 'react-native-modal';
+import {BackHandler} from 'react-native';
+
 import styles from './styles';
 import Session from '../../component/session';
 import Constant from '../../constant';
@@ -33,10 +35,6 @@ class Dashboard extends Component {
       tab2: false,
       tab3: false,
     };
-  }
-
-  componentDidMount(): void {
-    this.fetchDataUser();
   }
 
   fetchDataUser = () => {
@@ -72,6 +70,22 @@ class Dashboard extends Component {
   toggleModalLogout = (visible) => {
     this.setState({modalLogout: visible});
   };
+
+  componentDidMount(): void {
+    this.fetchDataUser();
+    BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressed);
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener(
+      'hardwareBackPress',
+      this.onBackButtonPressed,
+    );
+  }
+
+  onBackButtonPressed() {
+    return true;
+  }
 
   render() {
     return (
