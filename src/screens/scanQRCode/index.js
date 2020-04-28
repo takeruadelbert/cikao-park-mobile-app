@@ -1,6 +1,29 @@
 import React, {Component, Fragment} from 'react';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import {Linking, StatusBar, Text, TouchableOpacity, View} from 'react-native';
+import {
+  BackHandler,
+  Linking,
+  StatusBar,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {
+  Body,
+  Button,
+  Card,
+  CardItem,
+  Container,
+  Content,
+  Footer,
+  FooterTab,
+  Header,
+  Icon,
+  Text,
+  Title,
+} from 'native-base';
+import ToastComponent from '../../component/toastComponent';
+import Modal from 'react-native-modal';
+import styles from './styles';
 
 class ScanQRCode extends Component {
   constructor(props) {
@@ -9,6 +32,9 @@ class ScanQRCode extends Component {
       scan: false,
       ScanResult: false,
       result: null,
+      tab1: false,
+      tab2: true,
+      tab3: false,
     };
   }
 
@@ -33,6 +59,10 @@ class ScanQRCode extends Component {
     }
   };
 
+  componentDidMount(): void {
+    this.activeQR();
+  }
+
   activeQR = () => {
     this.setState({
       scan: true,
@@ -45,69 +75,123 @@ class ScanQRCode extends Component {
     });
   };
 
+  logout = () => {
+    let keys = ['password', 'tokenProfilePicture', 'fullName'];
+    this.session.removeMultiData(keys).then((result) => {
+      if (result) {
+        console.log('Discard Data Session Success.');
+        console.log('Logout ...');
+        this.props.navigation.navigate('SignIn');
+      } else {
+        ToastComponent.showToast('an Error occurred when logout.', 'danger');
+      }
+    });
+  };
+
+  toggleModalLogout = (visible) => {
+    this.setState({modalLogout: visible});
+  };
+
+  componentWillMount() {
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      this.handleBackButtonClick,
+    );
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener(
+      'hardwareBackPress',
+      this.handleBackButtonClick,
+    );
+  }
+
+  handleBackButtonClick = () => {
+    return true;
+  };
+
   render() {
     const {scan, ScanResult, result} = this.state;
-    const desccription =
-      'QR code (abbreviated from Quick Response Code) is the trademark for a type of matrix barcode (or two-dimensional barcode) first designed in 1994 for the automotive industry in Japan. A barcode is a machine-readable optical label that contains information about the item to which it is attached. In practice, QR codes often contain data for a locator, identifier, or tracker that points to a website or application. A QR code uses four standardized encoding modes (numeric, alphanumeric, byte/binary, and kanji) to store data efficiently; extensions may also be used.';
     return (
-      <View>
-        <Fragment>
-          <StatusBar barStyle="dark-content" />
-          <Text>Welcome To React-Native QR Code Tutorial !</Text>
-          {!scan && !ScanResult && (
-            <View>
-              <Text numberOfLines={8}>{desccription}</Text>
-
-              <TouchableOpacity onPress={this.activeQR}>
-                <Text>Click to Scan !</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {ScanResult && (
+      <Container style={styles.container}>
+        <Modal isVisible={this.state.modalLogout}>
+          <Card style={styles.mb}>
+            <CardItem header bordered first>
+              <Text>Logout Confirmation</Text>
+            </CardItem>
+            <CardItem>
+              <Body>
+                <Text>Are you sure you want to logout?</Text>
+              </Body>
+            </CardItem>
+            <CardItem footer bordered last style={styles.modalCard}>
+              <Text onPress={() => this.logout()}>Yes</Text>
+              <Text
+                style={styles.no}
+                onPress={() => this.toggleModalLogout(false)}>
+                No
+              </Text>
+            </CardItem>
+          </Card>
+        </Modal>
+        <Header noLeft>
+          <Body>
+            <Title>Scan QR Code</Title>
+          </Body>
+        </Header>
+        <Content style={styles.content}>
+          <View>
             <Fragment>
-              <Text>Result !</Text>
-              <View>
-                <Text>Type : {result.type}</Text>
-                <Text>Result : {result.data}</Text>
-                <Text numberOfLines={1}>RawData: {result.rawData}</Text>
-                <TouchableOpacity onPress={this.scanAgain}>
-                  <Text>Click to Scan again!</Text>
-                </TouchableOpacity>
-              </View>
+              <StatusBar barStyle="dark-content" />
+
+              {ScanResult && (
+                <Fragment>
+                  <Text>Result !</Text>
+                  <View>
+                    <Text>Type : {result.type}</Text>
+                    <Text>Result : {result.data}</Text>
+                    <Text numberOfLines={1}>RawData: {result.rawData}</Text>
+                    <TouchableOpacity onPress={this.scanAgain}>
+                      <Text>Click to Scan again!</Text>
+                    </TouchableOpacity>
+                  </View>
+                </Fragment>
+              )}
+
+              {scan && (
+                <QRCodeScanner
+                  reactivate={true}
+                  showMarker={true}
+                  ref={(node) => {
+                    this.scanner = node;
+                  }}
+                  onRead={this.onSuccess}
+                />
+              )}
             </Fragment>
-          )}
-
-          {scan && (
-            <QRCodeScanner
-              reactivate={true}
-              showMarker={true}
-              ref={(node) => {
-                this.scanner = node;
-              }}
-              onRead={this.onSuccess}
-              topContent={
-                <Text>
-                  Go to <Text>wikipedia.org/wiki/QR_code</Text> on your computer
-                  and scan the QR code to test.
-                </Text>
-              }
-              bottomContent={
-                <View>
-                  <TouchableOpacity onPress={() => this.scanner.reactivate()}>
-                    <Text>OK. Got it!</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => this.setState({scan: false})}>
-                    <Text>Stop Scan</Text>
-                  </TouchableOpacity>
-                </View>
-              }
-            />
-          )}
-        </Fragment>
-      </View>
+          </View>
+        </Content>
+        <Footer>
+          <FooterTab>
+            <Button
+              active={this.state.tab1}
+              onPress={() => this.props.navigation.navigate('Dashboard')}>
+              <Icon active={this.state.tab1} name="grid" />
+              <Text styles={styles.text}>Dashboard</Text>
+            </Button>
+            <Button active={this.state.tab2}>
+              <Icon active={this.state.tab2} name="barcode" />
+              <Text>Redeem Item</Text>
+            </Button>
+            <Button
+              active={this.state.tab3}
+              onPress={() => this.toggleModalLogout(true)}>
+              <Icon active={this.state.tab3} name="shuffle" />
+              <Text>Logout</Text>
+            </Button>
+          </FooterTab>
+        </Footer>
+      </Container>
     );
   }
 }

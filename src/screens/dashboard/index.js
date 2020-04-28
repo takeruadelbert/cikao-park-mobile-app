@@ -46,14 +46,6 @@ class Dashboard extends Component {
     });
   };
 
-  toggleTab1() {
-    this.setState({
-      tab1: true,
-      tab2: false,
-      tab3: false,
-    });
-  }
-
   logout = () => {
     let keys = ['password', 'tokenProfilePicture', 'fullName'];
     this.session.removeMultiData(keys).then((result) => {
@@ -138,7 +130,7 @@ class Dashboard extends Component {
 
         <Footer>
           <FooterTab>
-            <Button active={this.state.tab1} onPress={() => this.toggleTab1()}>
+            <Button active={this.state.tab1}>
               <Icon active={this.state.tab1} name="grid" />
               <Text>Dashboard</Text>
             </Button>
