@@ -1,18 +1,18 @@
 import React, {Component} from 'react';
 import {
-  Container,
-  Header,
-  Title,
-  Content,
   Body,
-  Text,
-  Thumbnail,
   Button,
-  Icon,
-  Footer,
-  FooterTab,
   Card,
   CardItem,
+  Container,
+  Content,
+  Footer,
+  FooterTab,
+  Header,
+  Icon,
+  Text,
+  Thumbnail,
+  Title,
 } from 'native-base';
 import Modal from 'react-native-modal';
 import {BackHandler} from 'react-native';
@@ -21,7 +21,7 @@ import styles from './styles';
 import Session from '../../component/session';
 import Constant from '../../constant';
 import Endpoint from '../../rest-api/endpoint';
-import ToastComponent from '../../component/toastComponent';
+import Logout from '../../component/logout';
 
 class Dashboard extends Component {
   constructor(props) {
@@ -35,6 +35,7 @@ class Dashboard extends Component {
       tab2: false,
       tab3: false,
     };
+    this.logout = new Logout(this.props);
   }
 
   fetchDataUser = () => {
@@ -42,19 +43,6 @@ class Dashboard extends Component {
     this.session.fetchMultiData(keys).then((data) => {
       if (data !== null) {
         this.setState({tokenPP: data[0][1], userFullName: data[1][1]});
-      }
-    });
-  };
-
-  logout = () => {
-    let keys = ['password', 'tokenProfilePicture', 'fullName'];
-    this.session.removeMultiData(keys).then((result) => {
-      if (result) {
-        console.log('Discard Data Session Success.');
-        console.log('Logout ...');
-        this.props.navigation.navigate('SignIn');
-      } else {
-        ToastComponent.showToast('an Error occurred when logout.', 'danger');
       }
     });
   };
@@ -99,7 +87,7 @@ class Dashboard extends Component {
               </Body>
             </CardItem>
             <CardItem footer bordered last style={styles.modalCard}>
-              <Text onPress={() => this.logout()}>Yes</Text>
+              <Text onPress={() => this.logout.signOut()}>Yes</Text>
               <Text
                 style={styles.no}
                 onPress={() => this.toggleModalLogout(false)}>

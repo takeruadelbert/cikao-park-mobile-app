@@ -21,9 +21,10 @@ import {
   Text,
   Title,
 } from 'native-base';
-import ToastComponent from '../../component/toastComponent';
 import Modal from 'react-native-modal';
 import styles from './styles';
+
+import Logout from '../../component/logout';
 
 class ScanQRCode extends Component {
   constructor(props) {
@@ -36,6 +37,7 @@ class ScanQRCode extends Component {
       tab2: true,
       tab3: false,
     };
+    this.logout = new Logout(this.props);
   }
 
   onSuccess = (e) => {
@@ -72,19 +74,6 @@ class ScanQRCode extends Component {
     this.setState({
       scan: true,
       ScanResult: false,
-    });
-  };
-
-  logout = () => {
-    let keys = ['password', 'tokenProfilePicture', 'fullName'];
-    this.session.removeMultiData(keys).then((result) => {
-      if (result) {
-        console.log('Discard Data Session Success.');
-        console.log('Logout ...');
-        this.props.navigation.navigate('SignIn');
-      } else {
-        ToastComponent.showToast('an Error occurred when logout.', 'danger');
-      }
     });
   };
 
@@ -125,7 +114,7 @@ class ScanQRCode extends Component {
               </Body>
             </CardItem>
             <CardItem footer bordered last style={styles.modalCard}>
-              <Text onPress={() => this.logout()}>Yes</Text>
+              <Text onPress={() => this.logout.signOut()}>Yes</Text>
               <Text
                 style={styles.no}
                 onPress={() => this.toggleModalLogout(false)}>
