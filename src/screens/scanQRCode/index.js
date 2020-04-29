@@ -1,12 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import {
-  BackHandler,
-  Linking,
-  StatusBar,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {BackHandler, Linking, View} from 'react-native';
 import {
   Body,
   Button,
@@ -20,11 +14,16 @@ import {
   Icon,
   Text,
   Title,
+  ListItem,
 } from 'native-base';
 import Modal from 'react-native-modal';
+import NumericInput from 'react-native-numeric-input';
 import styles from './styles';
 
 import Logout from '../../component/logout';
+import RestApi from '../../rest-api/restApi';
+import Endpoint from '../../rest-api/endpoint';
+import ToastComponent from '../../component/toastComponent';
 
 class ScanQRCode extends Component {
   constructor(props) {
@@ -36,8 +35,15 @@ class ScanQRCode extends Component {
       tab1: false,
       tab2: true,
       tab3: false,
+      modalLogout: false,
+      modalFailScan: false,
+      code: '',
+      message: '',
+      listBonusItem: [],
+      redeemItems: {},
     };
     this.logout = new Logout(this.props);
+    this.restApi = new RestApi();
   }
 
   onSuccess = (e) => {
@@ -50,7 +56,7 @@ class ScanQRCode extends Component {
     });
     if (check === 'http') {
       Linking.openURL(e.data).catch((err) =>
-        console.error('An error occured', err),
+        console.error('An error occurred', err),
       );
     } else {
       this.setState({
@@ -58,6 +64,7 @@ class ScanQRCode extends Component {
         scan: false,
         ScanResult: true,
       });
+      this.openApiScanQRCode(e.data);
     }
   };
 
@@ -81,6 +88,74 @@ class ScanQRCode extends Component {
     this.setState({modalLogout: visible});
   };
 
+  toggleModalFailScan = (visible, message) => {
+    this.setState({modalFailScan: visible, message: message});
+  };
+
+  failScan = () => {
+    this.setState({modalFailScan: false});
+    this.scanAgain();
+  };
+
+  editRedeemItem = (key, itemId, itemQuantity) => {
+    let newRedeemItems = this.state.redeemItems;
+    newRedeemItems[key] = {bonusItemId: itemId, quantity: itemQuantity};
+    this.setState({redeemItems: newRedeemItems});
+  };
+
+  openApiScanQRCode = (qrCode) => {
+    this.setState({code: qrCode});
+    let payload = {code: qrCode};
+    this.restApi.post(Endpoint.API_SCAN_QR_CODE, payload).then((response) => {
+      console.log('resp api = ' + JSON.stringify(response));
+      if (typeof response.data.status === 'undefined') {
+        this.renderListBonusItems(response);
+        this.setupStateRedeemItems(response);
+      } else {
+        if (response.data.status === 200) {
+        } else {
+          this.toggleModalFailScan(true, response.data.message);
+        }
+      }
+    });
+  };
+
+  renderListBonusItems = (response) => {
+    this.setState({
+      listBonusItem: response.data.details.map((item, key) => {
+        return (
+          <ListItem button key={item.bonusItemId}>
+            <Text>
+              {item.quantity} pc(s) {item.bonusItemLabel}
+            </Text>
+            <View style={styles.inputNumber}>
+              <NumericInput
+                minValue={0}
+                maxValue={item.quantity}
+                rounded
+                onChange={(value) =>
+                  this.editRedeemItem(key, item.bonusItemId, value)
+                }
+              />
+            </View>
+          </ListItem>
+        );
+      }),
+    });
+  };
+
+  setupStateRedeemItems = (response) => {
+    let temp = [];
+    response.data.details.map((item) => {
+      temp.push({
+        bonusItemId: item.bonusItemId,
+        quantity: 0,
+      });
+      return temp;
+    });
+    this.setState({redeemItems: temp});
+  };
+
   componentWillMount() {
     BackHandler.addEventListener(
       'hardwareBackPress',
@@ -99,10 +174,51 @@ class ScanQRCode extends Component {
     return true;
   };
 
+  redeemBonusItem = () => {
+    console.log('redeem items = ' + JSON.stringify(this.state.redeemItems));
+    let calculateRedeemItems = this.removeZeroQuantityRedeemBonusItem();
+    if (calculateRedeemItems.length <= 0) {
+      ToastComponent.showToast('No Item to Redeem.', 'warning');
+    } else {
+      ToastComponent.showToast(
+        'There are ' +
+          calculateRedeemItems.length +
+          ' item(s) being redeemed. (' +
+          this.state.code +
+          ')',
+        'success',
+      );
+    }
+  };
+
+  removeZeroQuantityRedeemBonusItem = () => {
+    let result = [];
+    for (let bonusItem of this.state.redeemItems) {
+      if (bonusItem.quantity > 0) {
+        result.push(bonusItem);
+      }
+    }
+    return result;
+  };
+
   render() {
-    const {scan, ScanResult, result} = this.state;
+    const {scan, ScanResult} = this.state;
     return (
       <Container style={styles.container}>
+        <Modal isVisible={this.state.modalFailScan}>
+          <Card style={styles.mb}>
+            <CardItem>
+              <Body>
+                <Text>{this.state.message}</Text>
+              </Body>
+            </CardItem>
+            <CardItem footer bordered last style={styles.modalCard}>
+              <Text onPress={() => this.failScan()} style={styles.ok}>
+                Scan Again
+              </Text>
+            </CardItem>
+          </Card>
+        </Modal>
         <Modal isVisible={this.state.modalLogout}>
           <Card style={styles.mb}>
             <CardItem header bordered first>
@@ -125,26 +241,22 @@ class ScanQRCode extends Component {
         </Modal>
         <Header noLeft>
           <Body>
-            <Title>Scan QR Code</Title>
+            <Title>Redeem Bonus Item</Title>
           </Body>
         </Header>
         <Content style={styles.content}>
           <View>
             <Fragment>
-              <StatusBar barStyle="dark-content" />
-
               {ScanResult && (
-                <Fragment>
-                  <Text>Result !</Text>
-                  <View>
-                    <Text>Type : {result.type}</Text>
-                    <Text>Result : {result.data}</Text>
-                    <Text numberOfLines={1}>RawData: {result.rawData}</Text>
-                    <TouchableOpacity onPress={this.scanAgain}>
-                      <Text>Click to Scan again!</Text>
-                    </TouchableOpacity>
-                  </View>
-                </Fragment>
+                <View style={{flexDirection: 'column'}}>
+                  {this.state.listBonusItem}
+                  <Button
+                    block
+                    style={{margin: 15, marginTop: 50}}
+                    onPress={() => this.redeemBonusItem()}>
+                    <Text>Redeem Bonus Item</Text>
+                  </Button>
+                </View>
               )}
 
               {scan && (

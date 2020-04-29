@@ -21,4 +21,15 @@ export default {
   content: {
     marginTop: 30,
   },
+  ok: {
+    textAlign: 'right',
+    alignSelf: 'stretch',
+    paddingRight: 10,
+  },
+  inputNumber: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    alignContent: 'flex-end',
+  },
 };
