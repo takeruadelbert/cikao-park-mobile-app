@@ -9,6 +9,7 @@ import {
   Content,
   Footer,
   FooterTab,
+  Icon,
   Input,
   Item,
   Label,
@@ -36,6 +37,7 @@ class Login extends Component {
       username: '',
       password: '',
       loading: false,
+      securePassword: true,
     };
     this.initDataSession();
   }
@@ -203,6 +205,13 @@ class Login extends Component {
     });
   };
 
+  viewPassword = () => {
+    console.log('masuk');
+    this.setState((prevState) => ({
+      securePassword: !prevState.securePassword,
+    }));
+  };
+
   render() {
     return (
       <Container style={styles.container}>
@@ -226,14 +235,16 @@ class Login extends Component {
                     onChangeText={this.handleUsername}
                     value={this.state.username}
                   />
+                  <Icon active name="person" />
                 </Item>
                 <Item floatingLabel style={styles.floatingLabel}>
                   <Label>Password</Label>
                   <Input
-                    secureTextEntry
+                    secureTextEntry={this.state.securePassword}
                     onChangeText={this.handlePassword}
                     value={this.state.password}
                   />
+                  <Icon active name="eye" onPress={() => this.viewPassword()} />
                 </Item>
                 <Button
                   block
