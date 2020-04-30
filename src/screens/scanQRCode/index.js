@@ -12,9 +12,9 @@ import {
   FooterTab,
   Header,
   Icon,
+  ListItem,
   Text,
   Title,
-  ListItem,
 } from 'native-base';
 import Modal from 'react-native-modal';
 import NumericInput from 'react-native-numeric-input';
@@ -178,14 +178,7 @@ class ScanQRCode extends Component {
     if (calculateRedeemItems.length <= 0) {
       ToastComponent.showToast('No Item to Redeem.', 'warning');
     } else {
-      ToastComponent.showToast(
-        'There are ' +
-          calculateRedeemItems.length +
-          ' item(s) being redeemed. (' +
-          this.state.code +
-          ')',
-        'success',
-      );
+      this.openApiRedeemBonusItem();
     }
   };
 
@@ -197,6 +190,26 @@ class ScanQRCode extends Component {
       }
     }
     return result;
+  };
+
+  openApiRedeemBonusItem = () => {
+    let payload = {
+      code: this.state.code,
+      details: this.state.redeemItems,
+    };
+    this.restApi
+      .post(Endpoint.API_REDEEM_BONUS_ITEM, payload)
+      .then((response) => {
+        console.log(
+          'response redeem bonus items : ' + JSON.stringify(response),
+        );
+        if (response.data.status === 200) {
+          ToastComponent.showToast('Redeem Bonus Item Success.', 'success');
+          this.scanAgain();
+        } else {
+          ToastComponent.showToast(response.data.message, 'danger');
+        }
+      });
   };
 
   render() {
@@ -250,9 +263,17 @@ class ScanQRCode extends Component {
                   {this.state.listBonusItem}
                   <Button
                     block
+                    primary
                     style={{margin: 15, marginTop: 50}}
                     onPress={() => this.redeemBonusItem()}>
                     <Text>Redeem Bonus Item</Text>
+                  </Button>
+                  <Button
+                    block
+                    primary
+                    style={{margin: 15}}
+                    onPress={() => this.scanAgain()}>
+                    <Text>Scan Again</Text>
                   </Button>
                 </View>
               )}

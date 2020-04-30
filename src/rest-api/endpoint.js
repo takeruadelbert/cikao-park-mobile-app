@@ -4,6 +4,7 @@ class Endpoint {
   static API_CHECK_TOKEN_VALIDITY = 'users/heartbeat';
   static API_GET_FILE = 'asset_files/';
   static API_SCAN_QR_CODE = 'mobile/bonus_items/scan';
+  static API_REDEEM_BONUS_ITEM = 'mobile/bonus_items/redeem';
 }
 
 export default Endpoint;
