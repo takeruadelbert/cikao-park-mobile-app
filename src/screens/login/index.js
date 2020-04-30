@@ -116,7 +116,9 @@ class Login extends Component {
           ToastComponent.TOAST_TYPE_WARNING,
         );
       }
-      this.toggleLoading(false);
+      setTimeout(() => {
+        this.toggleLoading(false);
+      }, 3000);
     });
   };
 
@@ -186,7 +188,9 @@ class Login extends Component {
         );
       }
     });
-    this.toggleLoading(false);
+    setTimeout(() => {
+      this.toggleLoading(false);
+    }, 1000);
   };
 
   componentDidMount(): void {
