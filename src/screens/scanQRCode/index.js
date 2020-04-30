@@ -108,14 +108,11 @@ class ScanQRCode extends Component {
     let payload = {code: qrCode};
     this.restApi.post(Endpoint.API_SCAN_QR_CODE, payload).then((response) => {
       console.log('resp api = ' + JSON.stringify(response));
-      if (typeof response.data.status === 'undefined') {
+      if (response.data.status === 200) {
         this.renderListBonusItems(response);
         this.setupStateRedeemItems(response);
       } else {
-        if (response.data.status === 200) {
-        } else {
-          this.toggleModalFailScan(true, response.data.message);
-        }
+        this.toggleModalFailScan(true, response.data.message);
       }
     });
   };
@@ -133,6 +130,7 @@ class ScanQRCode extends Component {
                 minValue={0}
                 maxValue={item.quantity}
                 rounded
+                editable={false}
                 onChange={(value) =>
                   this.editRedeemItem(key, item.bonusItemId, value)
                 }
