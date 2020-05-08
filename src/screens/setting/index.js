@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import styles from '../setting/styles';
+import styles from './styles';
 import {
   Body,
   Button,
@@ -130,6 +130,7 @@ class Setting extends Component {
                     onChangeText={this.handleHost}
                     value={this.state.host}
                     style={styles.fieldHost}
+                    placeholder="Server Host ..."
                   />
                   <Icon active name="wifi" />
                 </Item>
