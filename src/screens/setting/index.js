@@ -91,7 +91,7 @@ class Setting extends Component {
           'Setting has been saved successfully.',
           ToastComponent.TOAST_TYPE_SUCCESS,
         );
-        this.props.navigation.navigate('SignIn');
+        this.props.navigation.replace('SignIn');
       } else {
         ToastComponent.showToast(
           "Something's wrong when saving setting.",
