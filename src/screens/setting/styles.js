@@ -7,13 +7,10 @@ export default {
     paddingRight: 15,
     paddingLeft: 15,
   },
-  title: {
-    fontSize: 30,
+  logoContainer: {
     marginTop: 30,
-    textAlign: 'center',
-  },
-  footerText: {
-    textAlign: 'center',
+    width: 100,
+    height: 100,
   },
   mb: {
     marginBottom: 15,
@@ -27,27 +24,16 @@ export default {
     marginLeft: 5,
     marginBottom: 10,
   },
-  logoContainer: {
-    marginTop: 30,
-    width: 100,
-    height: 100,
+  footerText: {
+    textAlign: 'center',
+  },
+  fieldHost: {
+    paddingRight: 15,
   },
   imageView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     alignContent: 'center',
-  },
-  spinner: {
-    justifyContent: 'center',
-  },
-  setting: {
-    color: '#555',
-    marginRight: 20,
-    marginTop: -50,
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
-    alignContent: 'flex-end',
   },
 };

@@ -35,28 +35,4 @@ class Home extends Component {
   }
 }
 
-const AppNavigator = createStackNavigator(
-  {
-    Home: {
-      screen: Home,
-    },
-    SignIn: {
-      screen: Login,
-    },
-    Dashboard: {
-      screen: Dashboard,
-    },
-    ScanQRCode: {
-      screen: ScanQRCode,
-    },
-  },
-  {
-    headerMode: 'none',
-  },
-);
-const AppContainer = createAppContainer(AppNavigator);
-export default () => (
-  <Root>
-    <AppContainer />
-  </Root>
-);
+export default Home;

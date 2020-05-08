@@ -13,6 +13,7 @@ import {
   Input,
   Item,
   Label,
+  Root,
   Spinner,
   Text,
   View,
@@ -25,6 +26,11 @@ import ToastComponent from '../../component/toastComponent';
 import RestApi from '../../rest-api/restApi';
 import Endpoint from '../../rest-api/endpoint';
 import Session from '../../component/session';
+import {createStackNavigator} from 'react-navigation-stack';
+import Dashboard from '../dashboard';
+import ScanQRCode from '../scanQRCode';
+import {createAppContainer} from 'react-navigation';
+import Setting from '../setting';
 
 const logo = require('../../../assets/cikaopark.png');
 
@@ -70,7 +76,23 @@ class Login extends Component {
     this.setState({password: text});
   };
 
+  checkDataServerHostEmpty = () => {
+    return this.session.fetchSingleData('host').then((result) => {
+      return result === null;
+    });
+  };
+
   signIn = (username, password) => {
+    this.checkDataServerHostEmpty().then((result) => {
+      if (result) {
+        ToastComponent.showToast(
+          'Data host is empty. Setup it first.',
+          ToastComponent.TOAST_TYPE_WARNING,
+        );
+        return;
+      }
+    });
+
     if (username === '') {
       ToastComponent.showToast(
         'Username must be filled.',
@@ -194,7 +216,11 @@ class Login extends Component {
   };
 
   componentDidMount(): void {
-    this.autoLogin();
+    this.checkDataServerHostEmpty().then((result) => {
+      if (!result) {
+        this.autoLogin();
+      }
+    });
   }
 
   toDashboard = () => {
@@ -210,7 +236,6 @@ class Login extends Component {
   };
 
   viewPassword = () => {
-    console.log('masuk');
     this.setState((prevState) => ({
       securePassword: !prevState.securePassword,
     }));
@@ -224,6 +249,14 @@ class Login extends Component {
             <Spinner color="red" />
           </View>
         </Modal>
+
+        <View style={styles.setting}>
+          <Icon
+            active
+            name="settings"
+            onPress={() => this.props.navigation.navigate('Setting')}
+          />
+        </View>
 
         <View style={styles.imageView}>
           <ImageBackground source={logo} style={styles.logoContainer} />
@@ -282,4 +315,28 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const AppNavigator = createStackNavigator(
+  {
+    SignIn: {
+      screen: Login,
+    },
+    Dashboard: {
+      screen: Dashboard,
+    },
+    ScanQRCode: {
+      screen: ScanQRCode,
+    },
+    Setting: {
+      screen: Setting,
+    },
+  },
+  {
+    headerMode: 'none',
+  },
+);
+const AppContainer = createAppContainer(AppNavigator);
+export default () => (
+  <Root>
+    <AppContainer />
+  </Root>
+);

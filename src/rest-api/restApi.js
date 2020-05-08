@@ -1,5 +1,4 @@
 import Endpoint from './endpoint';
-import Constant from '../constant';
 import Session from '../component/session';
 
 interface IRestApi {
@@ -22,11 +21,20 @@ class RestApi implements IRestApi {
       'Content-Type': 'application/json',
       Authorization: '',
     };
+    this.setDataServerHost().then((result) => {
+      this.serverHost = result !== null ? result : '';
+    });
   }
+
+  setDataServerHost = () => {
+    return this.session.fetchSingleData('host').then((result) => {
+      return result !== null ? result : '';
+    });
+  };
 
   async get(url) {
     await this.setupHttpHeader();
-    return fetch(Constant.SERVER_HOST + url, {
+    return fetch(this.serverHost + url, {
       method: RestApi.HTTP_METHOD_GET,
       headers: this.httpHeader,
     })
@@ -49,7 +57,7 @@ class RestApi implements IRestApi {
     if (url !== Endpoint.API_LOGIN) {
       await this.setupHttpHeader();
     }
-    return fetch(Constant.SERVER_HOST + url, {
+    return fetch(this.serverHost + url, {
       method: RestApi.HTTP_METHOD_POST,
       headers: this.httpHeader,
       body: JSON.stringify(payload),

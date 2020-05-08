@@ -36,7 +36,16 @@ class Dashboard extends Component {
       tab3: false,
     };
     this.logout = new Logout(this.props);
+    this.setDataServerHost().then((result) => {
+      this.serverHost = result !== null ? result : '';
+    });
   }
+
+  setDataServerHost = () => {
+    return this.session.fetchSingleData('host').then((result) => {
+      return result !== null ? result : '';
+    });
+  };
 
   fetchDataUser = () => {
     let keys = ['tokenProfilePicture', 'fullName'];
@@ -107,7 +116,7 @@ class Dashboard extends Component {
             large
             source={{
               uri:
-                Constant.SERVER_HOST +
+                this.serverHost +
                 Endpoint.API_GET_FILE +
                 '/' +
                 this.state.tokenPP,

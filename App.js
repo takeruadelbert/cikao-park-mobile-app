@@ -7,9 +7,9 @@
  */
 
 import React, {Component} from 'react';
-import Home from './src/screens/home';
+import Login from './src/screens/login';
 
 const App = () => {
-  return <Home />;
+  return <Login />;
 };
 export default App;
