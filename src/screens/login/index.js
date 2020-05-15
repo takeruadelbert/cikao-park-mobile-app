@@ -134,7 +134,9 @@ class Login extends Component {
         });
       } else {
         ToastComponent.showToast(
-          response.data.message,
+          response.data.message
+            ? response.data.message
+            : 'Invalid Response from Host Server.',
           ToastComponent.TOAST_TYPE_WARNING,
         );
       }
@@ -205,7 +207,9 @@ class Login extends Component {
         });
       } else {
         ToastComponent.showToast(
-          response.data.message,
+          response.data.message
+            ? response.data.message
+            : 'Invalid Response from Host Server.',
           ToastComponent.TOAST_TYPE_WARNING,
         );
       }
